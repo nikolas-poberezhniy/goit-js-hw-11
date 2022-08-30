@@ -36,7 +36,6 @@ export default class NewApiService {
     this.currentPage += 1;
     // this.hitsCounter();
 
-    console.log(this.totalHits());
     // console.log(a.data.totalHits);
     return a.data;
   }
