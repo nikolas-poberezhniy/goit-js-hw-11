@@ -6,7 +6,7 @@ const PER_PAGE = 40;
 export default class NewApiService {
   constructor() {
     this.searchQuery = '';
-    this.currentPage = 0;
+    this.currentPage = 1;
     this.per_page = PER_PAGE;
     this.receivedData = [];
   }
@@ -59,8 +59,6 @@ export default class NewApiService {
   }
 
   async fetchCards() {
-    this.currentPage++;
-
     const params = {
       dimage_type: 'photo',
       orientation: 'horizontal',
@@ -72,7 +70,7 @@ export default class NewApiService {
 
     const a = await pixabayApi.get('', { params });
     this.receivedData = a.data;
-
+    this.currentPage++;
     return a.data;
   }
 

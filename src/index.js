@@ -59,7 +59,7 @@ async function renderReceivedData() {
       );
       return;
     }
-    if (newApiService.currentPage === 1) {
+    if (newApiService.currentPage === 2) {
       Notify.info(`Hooray! We found ${newApiService.totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
