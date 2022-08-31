@@ -51,6 +51,7 @@ function formSubmit(e) {
 
 async function renderReceivedData() {
   try {
+    const currentPage = newApiService.currentPage;
     const a = await newApiService.fetchCards();
 
     if (!a.hits.length) {
@@ -59,7 +60,7 @@ async function renderReceivedData() {
       );
       return;
     }
-    if (newApiService.currentPage === 2) {
+    if (currentPage === 1) {
       Notify.info(`Hooray! We found ${newApiService.totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
