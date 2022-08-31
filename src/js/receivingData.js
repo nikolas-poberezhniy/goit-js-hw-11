@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { pixabayApi } from './api';
 
 const API_KEY = '29483810-e73a753bafa1cfe0ffde3d090';
 const HITS_LIMIT = 500;
@@ -9,12 +9,6 @@ export default class NewApiService {
     this.currentPage = 0;
     this.per_page = PER_PAGE;
     this.receivedData = [];
-    this.pixabayQuery = axios.create({
-      baseURL: 'https://pixabay.com/api/',
-      params: {
-        key: `${API_KEY}`,
-      },
-    });
   }
 
   totalHits() {
@@ -63,8 +57,10 @@ export default class NewApiService {
       );
     }
   }
+
   async fetchCards() {
-    ++this.currentPage;
+    this.currentPage++;
+
     const params = {
       dimage_type: 'photo',
       orientation: 'horizontal',
@@ -74,7 +70,7 @@ export default class NewApiService {
       page: `${this.currentPage}`,
     };
 
-    const a = await this.pixabayQuery.get('', { params });
+    const a = await pixabayApi.get('', { params });
     this.receivedData = a.data;
 
     return a.data;
@@ -82,7 +78,7 @@ export default class NewApiService {
 
   set query(newQuery) {
     this.searchQuery = newQuery;
-    this.currentPage = 0;
+    this.currentPage = 1;
   }
   get query() {
     return this.searchQuery;

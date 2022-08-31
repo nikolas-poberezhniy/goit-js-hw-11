@@ -1,12 +1,12 @@
 import ApiService from './js/receivingData';
-import cardTemplate from './partials/imgCardTemplate.hbs';
+import cardTemplate from './template/imgCardTemplate.hbs';
 import { Notify } from 'notiflix';
 import { gallery } from './js/gallery';
 import { refs } from './js/refs';
 import throttle from 'lodash.throttle';
 import _debounce from 'debounce';
 
-const NewApiService = new ApiService();
+const newApiService = new ApiService();
 
 const observerOptions = {
   root: null,
@@ -21,9 +21,9 @@ let observer = new IntersectionObserver(e => {
 
       renderReceivedData();
       gallery.refresh();
-      throttle(NewApiService.hitsLeft, 1000);
-      if (NewApiService.hitsLeft() >= NewApiService.per_page) {
-        Notify.success(`There are ${NewApiService.hitsLeft()} images left`);
+      throttle(newApiService.hitsLeft, 1000);
+      if (newApiService.hitsLeft() >= newApiService.per_page) {
+        Notify.success(`There are ${newApiService.hitsLeft()} images left`);
       }
     }
   });
@@ -33,15 +33,15 @@ refs.form.addEventListener('submit', e => formSubmit(e));
 
 function formSubmit(e) {
   e.preventDefault();
-  if (e.currentTarget.searchQuery.value === NewApiService.query) {
+  if (e.currentTarget.searchQuery.value === newApiService.query) {
     Notify.info(
-      `Вы продублировали запрос ${NewApiService.query}. Слава сказал, что так нельзя`
+      `Вы продублировали запрос ${newApiService.query}. Слава сказал, что так нельзя`
     );
     return;
   }
   if (e.currentTarget.searchQuery.value) {
     refs.gallery.innerHTML = '';
-    NewApiService.query = e.currentTarget.searchQuery.value;
+    newApiService.query = e.currentTarget.searchQuery.value;
     refs.form.reset();
     renderReceivedData();
     return;
@@ -51,7 +51,7 @@ function formSubmit(e) {
 
 async function renderReceivedData() {
   try {
-    const a = await NewApiService.fetchCards();
+    const a = await newApiService.fetchCards();
 
     if (!a.hits.length) {
       Notify.failure(
@@ -59,8 +59,8 @@ async function renderReceivedData() {
       );
       return;
     }
-    if (NewApiService.currentPage === 1) {
-      Notify.info(`Hooray! We found ${NewApiService.totalHits()} images.`);
+    if (newApiService.currentPage === 1) {
+      Notify.info(`Hooray! We found ${newApiService.totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
       scroll();
@@ -68,7 +68,7 @@ async function renderReceivedData() {
     render(a.hits);
     gallery.refresh();
 
-    if (a.hits.length === NewApiService.per_page) {
+    if (a.hits.length === newApiService.per_page) {
       observer.observe(refs.gallery.lastElementChild);
     }
   } catch (e) {
