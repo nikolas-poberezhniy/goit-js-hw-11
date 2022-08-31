@@ -6,9 +6,15 @@ const PER_PAGE = 40;
 export default class NewApiService {
   constructor() {
     this.searchQuery = '';
-    this.currentPage = 1;
+    this.currentPage = 0;
     this.per_page = PER_PAGE;
     this.receivedData = [];
+    this.pixabayQuery = axios.create({
+      baseURL: 'https://pixabay.com/api/',
+      params: {
+        key: `${API_KEY}`,
+      },
+    });
   }
 
   totalHits() {
@@ -58,29 +64,25 @@ export default class NewApiService {
     }
   }
   async fetchCards() {
-    const pixabayQuery = axios.create({
-      baseURL: 'https://pixabay.com/api/',
-      params: {
-        key: `${API_KEY}`,
-        per_page: `${this.per_page}`,
-        page: `${this.currentPage}`,
-        image_type: 'photo',
-      },
-    });
+    ++this.currentPage;
+    const params = {
+      dimage_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+      q: `${this.searchQuery}`,
+      per_page: 40,
+      page: `${this.currentPage}`,
+    };
 
-    pixabayQuery.defaults.params['q'] = this.searchQuery;
-    pixabayQuery.defaults.params['page'] = this.currentPage;
-
-    const a = await pixabayQuery.get();
+    const a = await this.pixabayQuery.get('', { params });
     this.receivedData = a.data;
-    this.currentPage += 1;
 
     return a.data;
   }
 
   set query(newQuery) {
     this.searchQuery = newQuery;
-    this.currentPage = 1;
+    this.currentPage = 0;
   }
   get query() {
     return this.searchQuery;

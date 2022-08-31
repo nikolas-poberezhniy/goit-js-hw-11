@@ -25,3 +25,14 @@ b{
   width: 100%;
   }
 }
+
+.search-form{
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  background-color:aquamarine;
+  input{
+    padding:10px;
+
+  }
+}

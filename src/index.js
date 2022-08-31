@@ -33,6 +33,12 @@ refs.form.addEventListener('submit', e => formSubmit(e));
 
 function formSubmit(e) {
   e.preventDefault();
+  if (e.currentTarget.searchQuery.value === NewApiService.query) {
+    Notify.info(
+      `Вы продублировали запрос ${NewApiService.query}. Слава сказал, что так нельзя`
+    );
+    return;
+  }
   if (e.currentTarget.searchQuery.value) {
     refs.gallery.innerHTML = '';
     NewApiService.query = e.currentTarget.searchQuery.value;
@@ -53,7 +59,7 @@ async function renderReceivedData() {
       );
       return;
     }
-    if (NewApiService.currentPage == 2) {
+    if (NewApiService.currentPage === 1) {
       Notify.info(`Hooray! We found ${NewApiService.totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
@@ -62,8 +68,8 @@ async function renderReceivedData() {
     render(a.hits);
     gallery.refresh();
 
-    if (a.hits.length < NewApiService.per_page) {
-      throw new Error('Уупс!');
+    if (a.hits.length === NewApiService.per_page) {
+      observer.observe(refs.gallery.lastElementChild);
     }
   } catch (e) {
     Notify.warning(
@@ -73,8 +79,6 @@ async function renderReceivedData() {
     observer.unobserve(refs.gallery.lastElementChild);
     return;
   }
-
-  observer.observe(refs.gallery.lastElementChild);
 }
 
 function scroll() {
