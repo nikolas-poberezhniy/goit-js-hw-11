@@ -1,8 +1,8 @@
-import { pixabayApi } from './api';
+import { getImages } from '../api/getImages';
 
-const API_KEY = '29483810-e73a753bafa1cfe0ffde3d090';
 const HITS_LIMIT = 500;
 const PER_PAGE = 40;
+
 export default class NewApiService {
   constructor() {
     this.searchQuery = '';
@@ -32,18 +32,14 @@ export default class NewApiService {
       //меньше чем "500"
       HITS_LIMIT > this.receivedData.total
     ) {
-      return (
-        this.receivedData.totalHits - this.per_page * (this.currentPage - 1)
-      );
+      return this.receivedData.totalHits - this.per_page * (this.currentPage - 1);
     }
     if (
       //меньше чем "520"
       Math.ceil(this.receivedData.totalHits / PER_PAGE) * PER_PAGE >
       this.receivedData.total
     ) {
-      return (
-        this.receivedData.totalHits - this.per_page * (this.currentPage - 1)
-      );
+      return this.receivedData.totalHits - this.per_page * (this.currentPage - 1);
     }
 
     if (
@@ -51,10 +47,7 @@ export default class NewApiService {
       this.receivedData.total >
       Math.ceil(this.receivedData.totalHits / PER_PAGE) * PER_PAGE
     ) {
-      return (
-        Math.ceil(this.receivedData.totalHits / PER_PAGE) * PER_PAGE -
-        this.per_page * this.currentPage
-      );
+      return Math.ceil(this.receivedData.totalHits / PER_PAGE) * PER_PAGE - this.per_page * this.currentPage;
     }
   }
 
@@ -63,20 +56,26 @@ export default class NewApiService {
       dimage_type: 'photo',
       orientation: 'horizontal',
       safesearch: true,
-      q: `${this.searchQuery}`,
+      q: this.searchQuery,
       per_page: 40,
-      page: `${this.currentPage}`,
+      page: this.currentPage,
     };
+    const a = await getImages(params);
 
-    const a = await pixabayApi.get('', { params });
     this.receivedData = a.data;
-    this.currentPage++;
     return a.data;
+  }
+
+  resetPage() {
+    this.currentPage = 1;
+  }
+
+  incrementPage() {
+    this.currentPage++;
   }
 
   set query(newQuery) {
     this.searchQuery = newQuery;
-    this.currentPage = 1;
   }
   get query() {
     return this.searchQuery;

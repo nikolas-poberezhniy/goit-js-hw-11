@@ -1,16 +1,14 @@
 import ApiService from './js/receivingData';
 import cardTemplate from './template/imgCardTemplate.hbs';
 import { Notify } from 'notiflix';
-import { gallery } from './js/gallery';
+import { simpleLightboxExample } from './js/gallery';
 import { refs } from './js/refs';
-import throttle from 'lodash.throttle';
-import _debounce from 'debounce';
 
-const newApiService = new ApiService();
+export let newApiService = new ApiService();
 
 const observerOptions = {
   root: null,
-  rootMargin: `${1}px`,
+  rootMargin: `1px`,
   threshold: 1,
 };
 
@@ -20,8 +18,8 @@ let observer = new IntersectionObserver(e => {
       observer.unobserve(refs.gallery.lastElementChild);
 
       renderReceivedData();
-      gallery.refresh();
-      throttle(newApiService.hitsLeft, 1000);
+      simpleLightboxExample.refresh();
+
       if (newApiService.hitsLeft() >= newApiService.per_page) {
         Notify.success(`There are ${newApiService.hitsLeft()} images left`);
       }
@@ -33,13 +31,14 @@ refs.form.addEventListener('submit', e => formSubmit(e));
 
 function formSubmit(e) {
   e.preventDefault();
+
   if (e.currentTarget.searchQuery.value === newApiService.query) {
-    Notify.info(
-      `Вы продублировали запрос ${newApiService.query}. Слава сказал, что так нельзя`
-    );
+    Notify.info(`Вы продублировали запрос ${newApiService.query}. Слава сказал, что так нельзя`);
     return;
   }
+
   if (e.currentTarget.searchQuery.value) {
+    newApiService.resetPage();
     refs.gallery.innerHTML = '';
     newApiService.query = e.currentTarget.searchQuery.value;
     refs.form.reset();
@@ -51,31 +50,30 @@ function formSubmit(e) {
 
 async function renderReceivedData() {
   try {
-    const currentPage = newApiService.currentPage;
-    const a = await newApiService.fetchCards();
+    const { currentPage, fetchCards, totalHits, incrementPage, per_page } = newApiService;
+    const a = await fetchCards();
 
     if (!a.hits.length) {
-      Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
+      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
       return;
     }
     if (currentPage === 1) {
-      Notify.info(`Hooray! We found ${newApiService.totalHits()} images.`);
+      Notify.info(`Hooray! We found ${totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
       scroll();
     }
-    render(a.hits);
-    gallery.refresh();
 
-    if (a.hits.length === newApiService.per_page) {
+    incrementPage();
+    render(a.hits);
+    simpleLightboxExample.refresh();
+
+    if (a.hits.length === per_page) {
       observer.observe(refs.gallery.lastElementChild);
     }
   } catch (e) {
-    Notify.warning(
-      "We're sorry, but you've reached the end of search results."
-    );
+    console.log(e);
+    Notify.warning("We're sorry, but you've reached the end of search results.");
 
     observer.unobserve(refs.gallery.lastElementChild);
     return;
@@ -83,9 +81,7 @@ async function renderReceivedData() {
 }
 
 function scroll() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .lastElementChild.getBoundingClientRect();
+  const { height: cardHeight } = document.querySelector('.gallery').lastElementChild.getBoundingClientRect();
 
   // window.scrollBy(0, window.innerHeight);
   window.scrollBy({
