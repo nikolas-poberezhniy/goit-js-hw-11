@@ -50,7 +50,6 @@ function formSubmit(e) {
 
 async function renderReceivedData() {
   try {
-    const { currentPage, fetchCards, totalHits, incrementPage, per_page } = newApiService;
     const a = await fetchCards();
 
     if (!a.hits.length) {
