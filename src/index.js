@@ -33,7 +33,9 @@ function formSubmit(e) {
   e.preventDefault();
 
   if (e.currentTarget.searchQuery.value === newApiService.query) {
-    Notify.info(`Вы продублировали запрос ${newApiService.query}. Слава сказал, что так нельзя`);
+    Notify.info(
+      `Вы продублировали запрос ${newApiService.query}. Слава сказал, что так нельзя`
+    );
     return;
   }
 
@@ -50,29 +52,33 @@ function formSubmit(e) {
 
 async function renderReceivedData() {
   try {
-    const a = await fetchCards();
+    const a = await newApiService.fetchCards();
 
     if (!a.hits.length) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
       return;
     }
-    if (currentPage === 1) {
-      Notify.info(`Hooray! We found ${totalHits()} images.`);
+    if (newApiService.currentPage === 1) {
+      Notify.info(`Hooray! We found ${newApiService.totalHits()} images.`);
     }
     if (document.querySelectorAll('.photo-card').length > 0) {
       scroll();
     }
 
-    incrementPage();
+    newApiService.incrementPage();
     render(a.hits);
     simpleLightboxExample.refresh();
 
-    if (a.hits.length === per_page) {
+    if (a.hits.length === newApiService.per_page) {
       observer.observe(refs.gallery.lastElementChild);
     }
   } catch (e) {
     console.log(e);
-    Notify.warning("We're sorry, but you've reached the end of search results.");
+    Notify.warning(
+      "We're sorry, but you've reached the end of search results."
+    );
 
     observer.unobserve(refs.gallery.lastElementChild);
     return;
@@ -80,7 +86,9 @@ async function renderReceivedData() {
 }
 
 function scroll() {
-  const { height: cardHeight } = document.querySelector('.gallery').lastElementChild.getBoundingClientRect();
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .lastElementChild.getBoundingClientRect();
 
   // window.scrollBy(0, window.innerHeight);
   window.scrollBy({
